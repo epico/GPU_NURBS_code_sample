@@ -1,9 +1,9 @@
 GPU_NURBS code sample
 ================================================================================
 Real-time quadratic Non-uniform rational B-splines on the GPU using OpenGL-4 and GLSL.
-The surface is visualized as a moving red wireframe, viewable with a fly-around
-controllable camera. This is a graphics programming code sample, and will not
-compile without linking with the larger graphics framework.
+The surface is visualized as a moving red wireframe with white control grid points,
+viewable with a fly-around controllable camera. This application is standalone and
+built using GLFW and Eigen3 (no cg_sandbox dependency).
 
 "NURBS" are a hugely popular surface description used in computer-aided design.
 The real-time rendering of these surfaces is an interesting problem.
@@ -15,13 +15,44 @@ The main mathematical reference used in creating this demo is
 
 ![tessellation](https://github.com/LucasPayne/GPU_NURBS_code_sample/blob/main/images/tessellation.png?raw=true)
 
+Building and Running
+================================================================================
+### Dependencies
+- CMake (>= 3.16)
+- C++17 compatible compiler (GCC or Clang)
+- GLFW 3 (`glfw-devel`)
+- Eigen3 (`eigen3-devel`)
+- OpenGL 4.2+ development files (`mesa-libGL-devel`)
+
+### Build
+```bash
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j
+```
+
+### Run
+```bash
+./build/nurbs_demo
+```
+
+Controls
+================================================================================
+- **W / S**: Move forward / backward
+- **A / D**: Strafe left / right
+- **Space / Left Shift**: Fly up / down
+- **Mouse**: Look around (pitch and yaw)
+- **E**: Toggle mouse capture / free cursor
+- **Scroll Wheel**: Adjust movement speed
+- **H / J / K / L**: Keyboard look controls (when mouse capture is off)
+- **Q / Escape**: Quit demo
+
 Overview of program structure
 ================================================================================
 GLSL shaders
 --------------------------------------------------------------------------------
 - *quadratic_NURBS.{vert,tcs,tes,geom,frag}*:
-Four shader stages (vertex, tessellation, geometry, and fragment
-processing) are compiled and linked into one GPU program.
+Five shader stages (vertex, tessellation control, tessellation evaluation,
+geometry, and fragment processing) are compiled and linked into one GPU program.
   - The vertex shader passes data along to the control shader.
   - The tessellation control shader sets constant tessellation parameters
    (determining how many u,v coordinates are generated).
@@ -36,31 +67,15 @@ processing) are compiled and linked into one GPU program.
 
 C++ source
 --------------------------------------------------------------------------------
-- *CameraController.cpp*:
-Mouse view and movement controls to attach to a camera entity.
+- *math_eigen.h*:
+3D graphics math definitions (vectors, matrices, quaternions, perspective projection,
+and camera view transforms) using Eigen3.
+- *gl_loader.h*:
+Lightweight OpenGL 4.2 core profile loader.
+- *shader.h*:
+Shader compilation and program linking utility with multi-stage pipeline support.
+- *CameraController.{h,cpp}*:
+Mouse view and fly-around movement controls.
 - *nurbs_demo.cpp*:
-This is the essential code sample of the quadratic NURBS demo. This file
-is a project file for my graphics framework (called "cg_sandbox"), which
-this code must be linked to.
-
-A full description of the important steps in the program is given below.
-- **main**:
-  - Initialize an OpenGL context and loop (using my small library "interactive_graphics_context", with a glfw3 backend)
-  - Create the cg_sandbox "world" and attach it to the context.
-  - Create the application.
-- **Application initialization**:
-  - Create the camera man entity.
-  - Initialize the control net.
-  - Create a new entity.
-  - Create the DrawableNURBS behaviour, give it the control net, and attach it to the entity.
-- **DrawableNURBS initialization**:
-  - Initialize a default knot configuration.
-  - Initialize GPU data with OpenGL-4 buffers.
-  - Load, compile, and link the 5 shaders into one GPU program.
-- **main continued**:
-  - Enter the overall logic and rendering loop.
-  - Each frame, all entity components and behaviours are updated.
-- **DrawableNURBS update**:
-  - Move the control grid and knots around for visual effect.
-  - Reupload control grid and knot buffers to the GPU.
-  - Render the NURBS surface (upload GPU constants and render into each camera using the compiled shader program).
+Main application entry point and `DrawableNURBS` implementation managing the GPU
+buffers, knot textures, dynamic surface wave animation, and rendering loop.
