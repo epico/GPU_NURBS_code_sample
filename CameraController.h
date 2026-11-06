@@ -5,7 +5,7 @@
 #include "math_eigen.h"
 
 struct CameraController {
-    vec3 position{0.0f, 0.0f, 2.0f};
+    vec3 position{2.0f, 0.0f, 2.0f};
     Quaternion rotation{Quaternion::Identity()};
 
     float azimuth = 0.0f;

@@ -311,7 +311,7 @@ int main(int argc, char* argv[])
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         float aspect = fb_height > 0 ? static_cast<float>(fb_width) / static_cast<float>(fb_height) : 1.0f;
-        mat4x4 proj = custom_frustum_projection_matrix(0.1f, 300.0f, 0.1f, aspect);
+        mat4x4 proj = frustum_projection_matrix(0.1f, 300.0f, 0.1f, aspect);
         mat4x4 view = camera.get_view_matrix();
         mat4x4 view_proj = proj * view;
         mat4x4 model = mat4x4::Identity();
